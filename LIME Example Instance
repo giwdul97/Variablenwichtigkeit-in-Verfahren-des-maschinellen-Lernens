@@ -1,0 +1,92 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[19]:
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+import sys
+get_ipython().run_line_magic('matplotlib', 'inline')
+import warnings
+warnings.filterwarnings('ignore')
+
+
+# In[20]:
+
+
+df = pd.read_csv('INIT.csv',sep=';',decimal=',')
+df.head()
+
+
+# In[21]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[31]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[23]:
+
+
+Instanzen = pd.read_csv('Instanzen_INIT.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[24]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[25]:
+
+
+import lime
+from lime.lime_tabular import LimeTabularExplainer
+explainer= LimeTabularExplainer(training_data=np.array(X_train),
+                                mode='classification', 
+                                feature_names=list(X_train.columns),
+                                training_labels=np.array(y_train),
+                                class_names=['No default','Default'],
+                                random_state=12)
+
+
+# In[113]:
+
+
+exp = explainer.explain_instance(X_test.iloc[65], rfc.predict_proba, num_features = 20)
+exp.as_pyplot_figure()
+from matplotlib import pyplot as plt
+plt.tight_layout()
+
+
+# In[114]:
+
+
+exp.show_in_notebook(show_table=True, show_all=True)
+
+
+# In[112]:
+
+
+y_test.iloc[65]
