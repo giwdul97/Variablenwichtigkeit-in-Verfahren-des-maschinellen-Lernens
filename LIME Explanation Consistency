@@ -1,0 +1,555 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[15]:
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+import sys
+get_ipython().run_line_magic('matplotlib', 'inline')
+import warnings
+warnings.filterwarnings('ignore')
+
+
+# In[16]:
+
+
+df = pd.read_csv('MANI1.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[17]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[18]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[19]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI1.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[20]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[21]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[22]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[23]:
+
+
+import lime
+from lime.lime_tabular import LimeTabularExplainer
+explainer= LimeTabularExplainer(training_data=np.array(X_train),
+                                mode='classification', 
+                                feature_names=list(X_train.columns),
+                                training_labels=np.array(y_train),
+                                class_names=['No default','Default'],
+                                random_state=12)
+
+
+# In[24]:
+
+
+Erklärungen = pd.DataFrame(columns=['Variable','Wichtigkeit'])
+
+for i in range(75):
+
+    exp = explainer.explain_instance(X_Instanzen.iloc[i], rfc.predict_proba,num_features=20)
+    Werte = pd.DataFrame(exp.as_list(),columns=['Variable','Wichtigkeit'])
+    Erklärungen = Erklärungen.append({'Variable' : 'MANI1' , 'Wichtigkeit' : i+1} , ignore_index=True)
+    Erklärungen = Erklärungen.append(Werte)
+    
+Erklärungen
+
+
+# In[25]:
+
+
+Erklärungen.to_csv('Erklärungen_Performance_LIME_MANI1.csv')
+
+
+# In[26]:
+
+
+df = pd.read_csv('MANI2.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[27]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[28]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[29]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI2.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[30]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[31]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[32]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[33]:
+
+
+import lime
+from lime.lime_tabular import LimeTabularExplainer
+explainer= LimeTabularExplainer(training_data=np.array(X_train),
+                                mode='classification', 
+                                feature_names=list(X_train.columns),
+                                training_labels=np.array(y_train),
+                                class_names=['No default','Default'],
+                                random_state=12)
+
+
+# In[34]:
+
+
+Erklärungen = pd.DataFrame(columns=['Variable','Wichtigkeit'])
+
+for i in range(75):
+
+    exp = explainer.explain_instance(X_Instanzen.iloc[i], rfc.predict_proba,num_features=24)
+    Werte = pd.DataFrame(exp.as_list(),columns=['Variable','Wichtigkeit'])
+    Erklärungen = Erklärungen.append({'Variable' : 'MANI2' , 'Wichtigkeit' : i+1} , ignore_index=True)
+    Erklärungen = Erklärungen.append(Werte)
+    
+Erklärungen
+
+
+# In[35]:
+
+
+Erklärungen.to_csv('Erklärungen_Performance_LIME_MANI2.csv')
+
+
+# In[36]:
+
+
+df = pd.read_csv('MANI3.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[37]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[38]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[39]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI3.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[40]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[41]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[42]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[43]:
+
+
+import lime
+from lime.lime_tabular import LimeTabularExplainer
+explainer= LimeTabularExplainer(training_data=np.array(X_train),
+                                mode='classification', 
+                                feature_names=list(X_train.columns),
+                                training_labels=np.array(y_train),
+                                class_names=['No default','Default'],
+                                random_state=12)
+
+
+# In[44]:
+
+
+Erklärungen = pd.DataFrame(columns=['Variable','Wichtigkeit'])
+
+for i in range(75):
+
+    exp = explainer.explain_instance(X_Instanzen.iloc[i], rfc.predict_proba,num_features=19)
+    Werte = pd.DataFrame(exp.as_list(),columns=['Variable','Wichtigkeit'])
+    Erklärungen = Erklärungen.append({'Variable' : 'MANI3' , 'Wichtigkeit' : i+1} , ignore_index=True)
+    Erklärungen = Erklärungen.append(Werte)
+    
+Erklärungen
+
+
+# In[45]:
+
+
+Erklärungen.to_csv('Erklärungen_Performance_LIME_MANI3.csv')
+
+
+# In[46]:
+
+
+df = pd.read_csv('MANI4.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[47]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[48]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[49]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI4.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[50]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[51]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[52]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[53]:
+
+
+import lime
+from lime.lime_tabular import LimeTabularExplainer
+explainer= LimeTabularExplainer(training_data=np.array(X_train),
+                                mode='classification', 
+                                feature_names=list(X_train.columns),
+                                training_labels=np.array(y_train),
+                                class_names=['No default','Default'],
+                                random_state=12)
+
+
+# In[54]:
+
+
+Erklärungen = pd.DataFrame(columns=['Variable','Wichtigkeit'])
+
+for i in range(75):
+
+    exp = explainer.explain_instance(X_Instanzen.iloc[i], rfc.predict_proba,num_features=6)
+    Werte = pd.DataFrame(exp.as_list(),columns=['Variable','Wichtigkeit'])
+    Erklärungen = Erklärungen.append({'Variable' : 'MANI4' , 'Wichtigkeit' : i+1} , ignore_index=True)
+    Erklärungen = Erklärungen.append(Werte)
+    
+Erklärungen
+
+
+# In[55]:
+
+
+Erklärungen.to_csv('Erklärungen_Performance_LIME_MANI4.csv')
+
+
+# In[56]:
+
+
+df = pd.read_csv('MANI5.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[57]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[58]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[59]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI5.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[60]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[61]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[62]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[63]:
+
+
+import lime
+from lime.lime_tabular import LimeTabularExplainer
+explainer= LimeTabularExplainer(training_data=np.array(X_train),
+                                mode='classification', 
+                                feature_names=list(X_train.columns),
+                                training_labels=np.array(y_train),
+                                class_names=['No default','Default'],
+                                random_state=12)
+
+
+# In[64]:
+
+
+Erklärungen = pd.DataFrame(columns=['Variable','Wichtigkeit'])
+
+for i in range(75):
+
+    exp = explainer.explain_instance(X_Instanzen.iloc[i], rfc.predict_proba,num_features=18)
+    Werte = pd.DataFrame(exp.as_list(),columns=['Variable','Wichtigkeit'])
+    Erklärungen = Erklärungen.append({'Variable' : 'MANI5' , 'Wichtigkeit' : i+1} , ignore_index=True)
+    Erklärungen = Erklärungen.append(Werte)
+    
+Erklärungen
+
+
+# In[65]:
+
+
+Erklärungen.to_csv('Erklärungen_Performance_LIME_MANI5.csv')
+
+
+# In[66]:
+
+
+df = pd.read_csv('MANI6.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[67]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[68]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[75]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI6.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[76]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[77]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[78]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[79]:
+
+
+import lime
+from lime.lime_tabular import LimeTabularExplainer
+explainer= LimeTabularExplainer(training_data=np.array(X_train),
+                                mode='classification', 
+                                feature_names=list(X_train.columns),
+                                training_labels=np.array(y_train),
+                                class_names=['No default','Default'],
+                                random_state=12)
+
+
+# In[80]:
+
+
+Erklärungen = pd.DataFrame(columns=['Variable','Wichtigkeit'])
+
+for i in range(75):
+
+    exp = explainer.explain_instance(X_Instanzen.iloc[i], rfc.predict_proba,num_features=15)
+    Werte = pd.DataFrame(exp.as_list(),columns=['Variable','Wichtigkeit'])
+    Erklärungen = Erklärungen.append({'Variable' : 'MANI6' , 'Wichtigkeit' : i+1} , ignore_index=True)
+    Erklärungen = Erklärungen.append(Werte)
+    
+Erklärungen
+
+
+# In[81]:
+
+
+Erklärungen.to_csv('Erklärungen_Performance_LIME_MANI6.csv')
