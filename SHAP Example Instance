@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+pip install shap
+
+
+# In[2]:
+
+
+pip install seaborn
+
+
+# In[3]:
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+import sys
+get_ipython().run_line_magic('matplotlib', 'inline')
+import warnings
+warnings.filterwarnings('ignore')
+
+
+# In[4]:
+
+
+df = pd.read_csv('INIT.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[5]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[6]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[7]:
+
+
+Instanzen = pd.read_csv('Instanzen_INIT_2.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[8]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[9]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[10]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[11]:
+
+
+import shap
+
+
+# In[12]:
+
+
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values(X_test_new)
+
+
+# In[13]:
+
+
+shap.summary_plot(shap_values[1],X_test)
+
+
+# In[14]:
+
+
+Erklärungen = pd.DataFrame()
+
+for i in range(11):
+
+    Werte = shap_values[1][6000+i,:].tolist()
+    Erklärungen[i+1] = Werte
+    
+Erklärungen
+
+
+# In[15]:
+
+
+X_test_new.iloc[6000,:]
+
+
+# In[16]:
+
+
+shap.initjs()
+shap.force_plot(explainer.expected_value[1], shap_values[1][6000,:], X_test_new.iloc[6000,:])
+
