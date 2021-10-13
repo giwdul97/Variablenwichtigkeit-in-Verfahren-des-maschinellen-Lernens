@@ -1,0 +1,568 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+pip install shap
+
+
+# In[2]:
+
+
+pip install seaborn
+
+
+# In[45]:
+
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+import os
+import sys
+get_ipython().run_line_magic('matplotlib', 'inline')
+import warnings
+warnings.filterwarnings('ignore')
+
+
+# In[46]:
+
+
+df = pd.read_csv('MANI1.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[47]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[48]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[49]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI1.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[50]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[51]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[52]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[53]:
+
+
+import shap
+
+
+# In[54]:
+
+
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values(X_test_new)
+
+
+# In[55]:
+
+
+Erklärungen = pd.DataFrame()
+
+for i in range(10):
+
+    Werte = shap_values[1][6000+i,:].tolist()
+    Erklärungen[i+1] = Werte
+    
+Erklärungen
+
+
+# In[58]:
+
+
+X_test_new.iloc[6000,:]
+
+
+# In[57]:
+
+
+shap.initjs()
+shap.force_plot(explainer.expected_value[1], shap_values[1][6000,:], X_test_new.iloc[6000,:])
+
+
+# In[56]:
+
+
+Erklärungen.to_csv('Erklärungen_SHAP_MANI1.csv')
+
+
+# In[59]:
+
+
+df = pd.read_csv('MANI2.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[60]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[61]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[62]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI2.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[63]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[64]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[65]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[66]:
+
+
+import shap
+
+
+# In[67]:
+
+
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values(X_test_new)
+
+
+# In[68]:
+
+
+Erklärungen = pd.DataFrame()
+
+for i in range(10):
+
+    Werte = shap_values[1][6000+i,:].tolist()
+    Erklärungen[i+1] = Werte
+    
+Erklärungen
+
+
+# In[69]:
+
+
+Erklärungen.to_csv('Erklärungen_SHAP_MANI2.csv')
+
+
+# In[70]:
+
+
+df = pd.read_csv('MANI3.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[71]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[72]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[73]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI3.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[74]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[75]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[76]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[77]:
+
+
+import shap
+
+
+# In[78]:
+
+
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values(X_test_new)
+
+
+# In[79]:
+
+
+Erklärungen = pd.DataFrame()
+
+for i in range(10):
+
+    Werte = shap_values[1][6000+i,:].tolist()
+    Erklärungen[i+1] = Werte
+    
+Erklärungen
+
+
+# In[80]:
+
+
+Erklärungen.to_csv('Erklärungen_SHAP_MANI3.csv')
+
+
+# In[81]:
+
+
+df = pd.read_csv('MANI4.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[82]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[83]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[84]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI4.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[85]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[86]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[87]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[88]:
+
+
+import shap
+
+
+# In[89]:
+
+
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values(X_test_new)
+
+
+# In[90]:
+
+
+Erklärungen = pd.DataFrame()
+
+for i in range(10):
+
+    Werte = shap_values[1][6000+i,:].tolist()
+    Erklärungen[i+1] = Werte
+    
+Erklärungen
+
+
+# In[91]:
+
+
+Erklärungen.to_csv('Erklärungen_SHAP_MANI4.csv')
+
+
+# In[92]:
+
+
+df = pd.read_csv('MANI5.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[93]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[94]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[95]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI5.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[96]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[97]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[98]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[99]:
+
+
+import shap
+
+
+# In[100]:
+
+
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values(X_test_new)
+
+
+# In[101]:
+
+
+Erklärungen = pd.DataFrame()
+
+for i in range(10):
+
+    Werte = shap_values[1][6000+i,:].tolist()
+    Erklärungen[i+1] = Werte
+    
+Erklärungen
+
+
+# In[102]:
+
+
+Erklärungen.to_csv('Erklärungen_SHAP_MANI5.csv')
+
+
+# In[103]:
+
+
+df = pd.read_csv('MANI6.csv',sep=';',decimal=',')
+df = df.drop('ID',axis=1)
+df.head()
+
+
+# In[104]:
+
+
+X = df.drop('default.payment.next.month',axis=1)
+Y = df['default.payment.next.month']
+
+from sklearn.model_selection import train_test_split
+X_train,X_test,y_train,y_test = train_test_split(X,Y,test_size = 0.2,random_state = 1)
+
+
+# In[105]:
+
+
+from sklearn.ensemble import RandomForestClassifier
+
+rfc = RandomForestClassifier(n_estimators = 100,criterion = 'entropy',random_state = 0)
+rfc.fit(X_train,y_train)
+y_pred = rfc.predict(X_test)
+
+
+# In[106]:
+
+
+Instanzen = pd.read_csv('Instanzen_MANI6.csv',sep=';',decimal=',')
+Instanzen = Instanzen.drop('ID',axis=1)
+X_Instanzen = Instanzen.drop('default.payment.next.month',axis=1)
+Y_Instanzen = Instanzen['default.payment.next.month']
+
+
+# In[107]:
+
+
+X_test_new = X_test.append(X_Instanzen, ignore_index=True)
+
+
+# In[108]:
+
+
+y_test_new = y_test.append(Y_Instanzen, ignore_index=True)
+
+
+# In[109]:
+
+
+y_train.replace([0,1],['No default','Default'],inplace=True)
+y_test.replace([0,1],['No default','Default'],inplace=True)
+
+
+# In[110]:
+
+
+import shap
+
+
+# In[111]:
+
+
+explainer = shap.TreeExplainer(rfc)
+shap_values = explainer.shap_values(X_test_new)
+
+
+# In[112]:
+
+
+Erklärungen = pd.DataFrame()
+
+for i in range(10):
+
+    Werte = shap_values[1][6000+i,:].tolist()
+    Erklärungen[i+1] = Werte
+    
+Erklärungen
+
+
+# In[113]:
+
+
+Erklärungen.to_csv('Erklärungen_SHAP_MANI6.csv')
